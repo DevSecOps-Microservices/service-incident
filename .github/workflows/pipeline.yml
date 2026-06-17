@@ -85,5 +85,5 @@ jobs:
 
       - name: Push Docker image
         run: |
-          docker tag service-incident:latest ghcr.io/abderrazak111/service-incident:latest
-          docker push ghcr.io/abderrazak111/service-incident:latest
+          docker tag service-incident:latest ghcr.io/devsecops-microservices/service-incident:latest
+          docker push ghcr.io/devsecops-microservices/service-incident:latest
