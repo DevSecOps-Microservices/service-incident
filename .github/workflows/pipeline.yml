@@ -55,8 +55,14 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
       # Step 6 - Build the project
-      - name: Build with Maven
-        run: mvn clean package -DskipTests
+      - name: Build and analyze with SonarCloud
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: mvn clean package -DskipTests sonar:sonar
+          -Dsonar.projectKey=DevSecOps-Microservices_service-incident
+          -Dsonar.organization=devsecops-microservices
+          -Dsonar.host.url=https://sonarcloud.io
 
       # Step 7 - Run unit tests
       - name: Run unit tests
