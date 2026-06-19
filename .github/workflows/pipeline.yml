@@ -73,6 +73,7 @@ jobs:
       - name: Build Docker image
         run: docker build -t service-incident:latest .
 
+      # Step 8a - Trivy scan (table format for logs)
       - name: Scan Docker image (Trivy)
         uses: aquasecurity/trivy-action@master
         with:
@@ -80,6 +81,21 @@ jobs:
           format: table
           exit-code: '0'
           severity: CRITICAL,HIGH
+
+      # Step 8b - Trivy scan (SARIF format for GitHub Security tab)
+      - name: Trivy scan SARIF report
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: service-incident:latest
+          format: sarif
+          output: trivy-results.sarif
+          severity: CRITICAL,HIGH
+
+      # Step 8c - Upload to GitHub Security tab
+      - name: Upload Trivy results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-results.sarif
 
       # Step 9 - Push image to GitHub Container Registry
       - name: Login to GitHub Container Registry
@@ -93,3 +109,31 @@ jobs:
         run: |
           docker tag service-incident:latest ghcr.io/devsecops-microservices/service-incident:latest
           docker push ghcr.io/devsecops-microservices/service-incident:latest
+       # Step 11 - Deploy service
+      - name: Deploy service-incident
+        run: |
+          # Stop existing container if running
+          docker stop service-incident || true
+          docker rm service-incident || true
+
+          # Pull latest image from registry
+          docker pull ghcr.io/devsecops-microservices/service-incident:latest
+
+          # Run the container
+          docker run -d \
+            --name service-incident \
+            -p 8081:8081 \
+            --restart unless-stopped \
+            -e SPRING_PROFILES_ACTIVE=docker \
+            ghcr.io/devsecops-microservices/service-incident:latest
+
+          # Wait for startup
+          sleep 15
+
+          echo "service-incident deployed successfully"
+
+      # Step 12 - Verify deployment
+      - name: Verify deployment
+        run: |
+          docker ps | grep service-incident
+          echo "Container is running"
