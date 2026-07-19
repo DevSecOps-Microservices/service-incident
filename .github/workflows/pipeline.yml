@@ -134,31 +134,3 @@ jobs:
         run: |
           docker tag service-incident:latest ghcr.io/devsecops-microservices/service-incident:latest
           docker push ghcr.io/devsecops-microservices/service-incident:latest
-       # Step 11 - Deploy service
-      - name: Deploy service-incident
-        run: |
-          # Stop existing container if running
-          docker stop service-incident || true
-          docker rm service-incident || true
-
-          # Pull latest image from registry
-          docker pull ghcr.io/devsecops-microservices/service-incident:latest
-
-          # Run the container
-          docker run -d \
-            --name service-incident \
-            -p 8082:8082 \
-            --restart unless-stopped \
-            -e SPRING_PROFILES_ACTIVE=docker \
-            ghcr.io/devsecops-microservices/service-incident:latest
-
-          # Wait for startup
-          sleep 15
-
-          echo "service-incident deployed successfully"
-
-      # Step 12 - Verify deployment
-      - name: Verify deployment
-        run: |
-          docker ps | grep service-incident
-          echo "Container is running"
