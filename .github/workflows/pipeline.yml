@@ -84,10 +84,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn clean package -DskipTests sonar:sonar
-          -Dsonar.projectKey=DevSecOps-Microservices_service-incident
-          -Dsonar.organization=devsecops-microservices
-          -Dsonar.host.url=https://sonarcloud.io
+        run: |
+          ./mvnw clean verify \
+            org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+            -DskipTests \
+            -Dsonar.projectKey=DevSecOps-Microservices_gateway-service \
+            -Dsonar.organization=devsecops-microservices \
+            -Dsonar.host.url=https://sonarcloud.io
 
       # Step 7 - Run unit tests
       - name: Run unit tests
@@ -132,5 +135,10 @@ jobs:
 
       - name: Push Docker image
         run: |
+          IMAGE_TAG=v1.${{ github.run_number }}-${GITHUB_SHA::7}
+
           docker tag service-incident:latest ghcr.io/devsecops-microservices/service-incident:latest
+          docker tag service-incident:latest ghcr.io/devsecops-microservices/service-incident:${IMAGE_TAG}
+
           docker push ghcr.io/devsecops-microservices/service-incident:latest
+          docker push ghcr.io/devsecops-microservices/service-incident:${IMAGE_TAG}
