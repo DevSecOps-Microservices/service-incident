@@ -11,6 +11,9 @@ public class MinioConfig {
     @Value("${minio.url:http://minio:9000}")
     private String url;
 
+    @Value("${minio.public-url:http://localhost:9000}")
+    private String publicUrl;
+
     @Value("${minio.access-key:minioadmin}")
     private String accessKey;
 
@@ -24,5 +27,4 @@ public class MinioConfig {
                 .credentials(accessKey, secretKey)
                 .build();
     }
-
 }

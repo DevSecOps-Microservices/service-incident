@@ -20,6 +20,9 @@ public class MinioService {
     @Value("${minio.bucket:incidents}")
     private String bucketName;
 
+    @Value("${minio.public-url:http://localhost:9000}")
+    private String publicUrl;
+
     public MinioService(MinioClient minioClient) {
         this.minioClient = minioClient;
     }
@@ -61,7 +64,7 @@ public class MinioService {
      * Generate a pre-signed URL valid for 1 hour.
      */
     public String getPresignedUrl(String objectKey) {
-        return "http://localhost:9000/" + bucketName + "/" + objectKey;
+        return publicUrl + "/" + bucketName + "/" + objectKey;
     }
 
     /**
